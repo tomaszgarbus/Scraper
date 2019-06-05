@@ -1,12 +1,15 @@
 import urllib.request
 from html.parser import HTMLParser
 from typing import List, Dict, Callable, Set
+from utils import is_link_relative
 
 
 class ArticleParser(HTMLParser):
     def __init__(self):
         super(ArticleParser, self).__init__()
         self.links = []
+        # Number of open 'article' tags while traversing the DOM tree.
+        self.article_tags_depth = 0
 
     def error(self, message):
         pass
@@ -19,13 +22,19 @@ class ArticleParser(HTMLParser):
                 attrs_dict[k] = v
             # Appends the link to the list.
             self.links.append(attrs_dict)
+            if "str=6" in attrs_dict['href']:
+                print("kurde bela", attrs_dict['href'])
+        if tag == 'article':
+            # Increases the count of nested 'article' tags.
+            self.article_tags_depth += 1
 
     def handle_endtag(self, tag):
-        pass
+        if tag == 'article':
+            # Decreases the count of nested 'article' tags.
+            self.article_tags_depth -= 1
 
     def handle_data(self, data):
         super().handle_data(data)
-        pass
 
     def get_links(self) -> List[Dict[str, str]]:
         """
@@ -41,47 +50,73 @@ class ArticlesScraper:
     """
     def __init__(self,
                  home: str,
+                 domain: str,
                  limit: int = -1,
                  follow_link: Callable[[Dict], bool] = (lambda _: True)):
         """
         A constructor for a scraper object.
         :param home: The starting page.
+        :param home: The domain of the scraped portal.
         :param limit: Maximum number of visited web pages. If set to -1, then there is no limit.
-        :param follow_link: A function determining, whether to follow a link.
+        :param follow_link: A function determining whether to follow a link or not.
         """
         super(ArticlesScraper, self).__init__()
 
         self.home = home
+        self.domain = domain
         self.limit = limit
         self.follow_link = follow_link
 
         # Creates a queue of web pages URLs to visit.
         self.queue: List[str] = [self.home]
-        # Creates a set of visited links.
-        self.visited: Set[str] = set()
+        # Creates a set of visited or queued links.
+        self.visited_or_queued: Set[str] = set()
+
+    def _preprocess_link(self, link: Dict) -> None:
+        """
+        Performs a number of heuristics to make the link followable.
+
+        :param link: A link presented as a dictionary of (attribute, attribute value) pairs.
+        """
+        if 'href' in link:
+            if link['href'].startswith('\\\'') and link['href'].endswith('\\\'') and len(link['href']) >= 4:
+                link['href'] = link['href'][2:-2]
+            if is_link_relative(link['href']):
+                link['href'] = self.domain + link['href']
+
+    def _visit_page(self, page_url: str) -> None:
+        """
+        Processes a single page during the DFS scraping procedure.
+
+        :param page_url: URL to the page.
+        """
+        print(page_url)
+
+        # Parses the webpage and fetches the list of links.
+        parser = ArticleParser()
+        with urllib.request.urlopen(self.home) as response:
+            html = response.read()
+        parser.feed(str(html))
+
+        # Filters the links to be followed.
+        links = parser.get_links()
+        for link in links:
+            self._preprocess_link(link)
+        links_to_follow = list(filter(self.follow_link, links))
+        for link in links_to_follow:
+            # If link is to be followed, it must have 'href' attribute.
+            assert 'href' in link
+            if link['href'] in self.visited_or_queued:
+                # Link has already been visited, there is a cycle in the link graph.
+                continue
+            # Appends the link url to the end of the queue.
+            self.queue.append(link['href'])
+            self.visited_or_queued.add(link['href'])
 
     def run(self):
         while self.queue:
             # Pops the first webpage from the queue.
             page = self.queue[0]
             self.queue = self.queue[1:]
-            self.visited.add(page)
 
-            print(page)
-
-            # Parses the webpage and fetches the list of links.
-            parser = ArticleParser()
-            with urllib.request.urlopen(self.home) as response:
-                self.html = response.read()
-            parser.feed(str(self.html))
-
-            # Filters the links to be followed.
-            links_to_follow = list(filter(self.follow_link, parser.get_links()))
-            for link in links_to_follow:
-                # If link is to be followed, it must have 'href' attribute.
-                assert 'href' in link
-                if link['href'] in self.visited:
-                    # Link has already been visited, there is a cycle in the link graph.
-                    continue
-                # Appends the link url to the end of the queue.
-                self.queue.append(link['href'])
+            self._visit_page(page_url=page)
