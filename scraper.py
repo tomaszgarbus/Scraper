@@ -1,4 +1,4 @@
-import urllib.request
+import urllib.request, urllib.error
 from html.parser import HTMLParser
 from typing import List, Dict, Callable, Set
 from utils import is_link_relative
@@ -10,8 +10,10 @@ class ArticleParser(HTMLParser):
         self.links = []
         # Number of open 'article' tags while traversing the DOM tree.
         self.article_tags_depth = 0
+        self.article_text = ''
 
     def error(self, message):
+        print("ERROR", message)
         pass
 
     def handle_starttag(self, tag, attrs):
@@ -22,8 +24,6 @@ class ArticleParser(HTMLParser):
                 attrs_dict[k] = v
             # Appends the link to the list.
             self.links.append(attrs_dict)
-            if "str=6" in attrs_dict['href']:
-                print("kurde bela", attrs_dict['href'])
         if tag == 'article':
             # Increases the count of nested 'article' tags.
             self.article_tags_depth += 1
@@ -35,6 +35,8 @@ class ArticleParser(HTMLParser):
 
     def handle_data(self, data):
         super().handle_data(data)
+        if self.article_tags_depth > 0:
+            self.article_text += data
 
     def get_links(self) -> List[Dict[str, str]]:
         """
@@ -42,6 +44,9 @@ class ArticleParser(HTMLParser):
         :return: A list of dictionaries, where keys and values corresponds to the 'a' tag attributes.
         """
         return self.links
+
+    def get_article_text(self) -> str:
+        return self.article_text
 
 
 class ArticlesScraper:
@@ -90,13 +95,19 @@ class ArticlesScraper:
 
         :param page_url: URL to the page.
         """
-        print(page_url)
+        print("Visiting %s; queued elements %d; %d on queue" % (page_url, len(self.visited_or_queued), len(self.queue)))
 
         # Parses the webpage and fetches the list of links.
         parser = ArticleParser()
-        with urllib.request.urlopen(self.home) as response:
-            html = response.read()
+        try:
+            with urllib.request.urlopen(page_url) as response:
+                html = response.read()
+        except urllib.error.HTTPError:
+            print("404")
+            return
+
         parser.feed(str(html))
+        print(parser.get_article_text())
 
         # Filters the links to be followed.
         links = parser.get_links()
