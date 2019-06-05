@@ -1,4 +1,6 @@
+from scraper import ArticlesScraper
+
 if __name__ == '__main__':
-    scraper = SportPlScraper()
+    scraper = ArticlesScraper(home='http://www.sport.pl/pilka',
+                              follow_link=lambda link: link['href'].startswith('http://www.sport.pl/pilka'))
     scraper.run()
-    print(scraper.html)
