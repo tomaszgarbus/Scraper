@@ -1,2 +1,2 @@
 language: python
-script: pylint *.py
+script: pylint -E *.py
