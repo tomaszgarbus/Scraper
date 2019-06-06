@@ -1,3 +1,5 @@
 urllib
 html
 validators
+bs4
+lxml
