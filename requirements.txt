@@ -1,5 +1,4 @@
 urllib3
-html
 validators
 bs4
 lxml
