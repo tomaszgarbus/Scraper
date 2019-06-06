@@ -1,2 +1,6 @@
 language: python
-script: pylint -E *.py
+script:
+# First running pylint and silencing its output code.
+pylint *.py || true
+# Running pylint again and asking it to only report errors.
+pylint -E *.py
