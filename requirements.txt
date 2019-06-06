@@ -2,3 +2,4 @@ urllib3
 validators
 bs4
 lxml
+pylint
