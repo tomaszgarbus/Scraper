@@ -15,5 +15,6 @@ class Article:
         return '\n'.join([
             '::' + self.title + '::',
             '@' + self.datetime,
+            'url: ' + self.source_url,
             self.text
         ])

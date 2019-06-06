@@ -58,14 +58,11 @@ class SportPlArticlesScraper:
     def __init__(self,
                  home: str,
                  domain: str,
-                 limit: int = -1,
                  follow_link: Callable[[str], bool] = sportpl_follow_link):
         """
         A constructor for a scraper object.
         :param home: The starting page.
         :param home: The domain of the scraped portal.
-        :param limit: Maximum number of visited web pages. If set to -1, then
-                      there is no limit.
         :param follow_link: A function determining whether to follow a link or
                             not.
         """
@@ -73,7 +70,6 @@ class SportPlArticlesScraper:
 
         self.home = home
         self.domain = domain
-        self.limit = limit
         self.follow_link = follow_link
 
         # Creates a queue of web pages URLs to visit.
@@ -114,7 +110,7 @@ class SportPlArticlesScraper:
         article = sportpl_make_article(soup, page_url)
         if article:
             self.articles_found += 1
-            print(article)
+
         # Selects the links to follow.
         links_with_href = list(filter(lambda a: a.has_attr('href'),
                                       soup.find_all('a')))
@@ -144,4 +140,6 @@ class SportPlArticlesScraper:
             page = self.queue[idx]
             self.queue = self.queue[:idx] + self.queue[idx+1:]
 
-            self._visit_page(page_url=page)
+            article = self._visit_page(page_url=page)
+            if article:
+                yield article
