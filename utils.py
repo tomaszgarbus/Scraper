@@ -1,3 +1,6 @@
+"""
+Various project-wide small utility functions.
+"""
 import validators
 
 

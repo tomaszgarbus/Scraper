@@ -1,15 +1,22 @@
+"""
+Scraper for sport.pl. The goal is to make it more universal, but for now I'm
+avoiding premature optimizations/refactorings.
+"""
+import http.client
+import random
 import urllib.error
 import urllib.request
 from bs4 import BeautifulSoup
 from lxml.html import document_fromstring
 from typing import List, Callable, Set, Optional
 
+from article import Article
 from utils import is_link_relative
 
 
 def sportpl_follow_link(link: str):
     return (link.startswith('http://www.sport.pl/pilka')
-            or link.startswith('/pilka'))
+            or link.startswith('/pilka')) and 'pilka/2' not in link
 
 
 def sportpl_remove_scripts(soup: BeautifulSoup):
@@ -20,16 +27,27 @@ def sportpl_remove_scripts(soup: BeautifulSoup):
             sportpl_remove_scripts(tag)
 
 
-def sportpl_get_article_content(soup: BeautifulSoup) -> Optional[str]:
+def sportpl_make_article(soup: BeautifulSoup, source_url: str) -> \
+        Optional[Article]:
+    """
+    Builds an Article object.
+    :param soup: A BeautifulSoup object - a parsed article.
+    :param source_url: Source URL.
+    :return: An Article object or None.
+    """
     art_contents = soup.find_all(id='gazeta_article_body')
     for tag in art_contents:
         sportpl_remove_scripts(tag)
     if art_contents:
         article_text = document_fromstring(
             '\n'.join(list(map(str, art_contents)))).text_content()
-        print('::', soup.title.text, '::')
-        print(article_text)
-        return article_text
+        article_date = (soup.find(class_='article_date') or
+                        soup.find(id='gazeta_article_date')).time['datetime']
+        return Article(title=soup.title.text,
+                       datetime=article_date,
+                       text=article_text,
+                       source_url=source_url)
+    return None
 
 
 class SportPlArticlesScraper:
@@ -72,11 +90,12 @@ class SportPlArticlesScraper:
             link = self.domain + link
         return link
 
-    def _visit_page(self, page_url: str) -> None:
+    def _visit_page(self, page_url: str) -> Optional[Article]:
         """
         Processes a single page during the DFS scraping procedure.
 
         :param page_url: URL to the page.
+        :return: An article, if there was one on the page, or None.
         """
         print("Visiting %s; queued elements %d; %d on queue; #articles %d" %
               (page_url, len(self.visited_or_queued), len(self.queue),
@@ -86,17 +105,21 @@ class SportPlArticlesScraper:
         try:
             with urllib.request.urlopen(page_url) as response:
                 html = response.read()
-        except urllib.error.HTTPError:
-            print("404")
+        except (urllib.error.HTTPError, urllib.error.URLError,
+                http.client.IncompleteRead):
+            print("http read failed")
             return
 
         soup = BeautifulSoup(html, 'html.parser')
-        article_text = sportpl_get_article_content(soup)
-        if article_text:
+        article = sportpl_make_article(soup, page_url)
+        if article:
             self.articles_found += 1
+            print(article)
         # Selects the links to follow.
+        links_with_href = list(filter(lambda a: a.has_attr('href'),
+                                      soup.find_all('a')))
         links_to_follow: List[str] = list(map(lambda a: a['href'],
-                                              soup.find_all('a')))
+                                              links_with_href))
         links_to_follow = list(filter(self.follow_link, links_to_follow))
         links_to_follow = list(map(self._preprocess_link, links_to_follow))
 
@@ -109,10 +132,16 @@ class SportPlArticlesScraper:
             self.queue.append(link)
             self.visited_or_queued.add(link)
 
+        if article:
+            return article
+
     def run(self):
         while self.queue:
-            # Pops the first webpage from the queue.
-            page = self.queue[0]
-            self.queue = self.queue[1:]
+            # Pops random webpage from the queue.
+            # Why random? To avoid falling into an endless process of visiting
+            # all single-matche-pages.
+            idx = random.randint(0, len(self.queue)-1)
+            page = self.queue[idx]
+            self.queue = self.queue[:idx] + self.queue[idx+1:]
 
             self._visit_page(page_url=page)

@@ -1,3 +1,6 @@
+"""
+Debugging.
+"""
 from sportpl_scraper import SportPlArticlesScraper, sportpl_follow_link
 
 if __name__ == '__main__':
