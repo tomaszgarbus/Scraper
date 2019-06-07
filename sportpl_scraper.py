@@ -102,7 +102,7 @@ class SportPlArticlesScraper:
             with urllib.request.urlopen(page_url) as response:
                 html = response.read()
         except (urllib.error.HTTPError, urllib.error.URLError,
-                http.client.IncompleteRead):
+                http.client.IncompleteRead, UnicodeEncodeError):
             print("http read failed")
             return
 

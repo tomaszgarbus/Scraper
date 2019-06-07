@@ -18,6 +18,9 @@ if __name__ == '__main__':
     for article in scraper.run():
         print(article)
         if output_dir:
-            path = os.path.join(output_dir, article.datetime)
-            with open(path, 'w+') as file:
+            pathdir = os.path.join(output_dir, article.datetime)
+            os.makedirs(pathdir, exist_ok=True)
+            fname = str(len(os.listdir(pathdir)))
+            fpath = os.path.join(pathdir, fname)
+            with open(fpath, 'w+') as file:
                 file.write(str(article))
