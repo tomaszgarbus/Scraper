@@ -2,16 +2,16 @@
 A configurable articles scraper.
 """
 import http.client
+import os
+import pickle
 import urllib.error
 import urllib.request
-import pickle
 from bs4 import BeautifulSoup
 from typing import List, Set, Optional, Iterable
 
 from article import Article
 from configs.scraper_config import ScraperConfig
 from utils import is_link_relative
-import os
 
 
 class ScraperState:
