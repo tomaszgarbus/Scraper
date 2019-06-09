@@ -1,53 +1,15 @@
 """
-Scraper for sport.pl. The goal is to make it more universal, but for now I'm
-avoiding premature optimizations/refactorings.
+A configurable articles scraper.
 """
 import http.client
-import random
 import urllib.error
 import urllib.request
 from bs4 import BeautifulSoup
-from lxml.html import document_fromstring
-from typing import List, Callable, Set, Optional
+from typing import List, Set, Optional
 
 from article import Article
+from configs.scraper_config import ScraperConfig
 from utils import is_link_relative
-
-
-def sportpl_follow_link(link: str):
-    return (link.startswith('http://www.sport.pl/pilka')
-            or link.startswith('/pilka')) and 'pilka/2' not in link
-
-
-def sportpl_remove_scripts(soup: BeautifulSoup):
-    for tag in soup.findChildren():
-        if tag.name == 'script':
-            tag.extract()
-        else:
-            sportpl_remove_scripts(tag)
-
-
-def sportpl_make_article(soup: BeautifulSoup, source_url: str) -> \
-        Optional[Article]:
-    """
-    Builds an Article object.
-    :param soup: A BeautifulSoup object - a parsed article.
-    :param source_url: Source URL.
-    :return: An Article object or None.
-    """
-    art_contents = soup.find_all(id='gazeta_article_body')
-    for tag in art_contents:
-        sportpl_remove_scripts(tag)
-    if art_contents:
-        article_text = document_fromstring(
-            '\n'.join(list(map(str, art_contents)))).text_content()
-        article_date = (soup.find(class_='article_date') or
-                        soup.find(id='gazeta_article_date')).time['datetime']
-        return Article(title=soup.title.text,
-                       datetime=article_date,
-                       text=article_text,
-                       source_url=source_url)
-    return None
 
 
 class ScraperState:
@@ -65,27 +27,23 @@ class ScraperState:
         self.articles_found = 0
 
 
-class SportPlArticlesScraper:
+class ArticlesScraper:
     """
     A scraper for articles. The goal is for this scraper to be as universal as
     possible.
     """
     def __init__(self,
-                 home: str,
-                 domain: str,
-                 follow_link: Callable[[str], bool] = sportpl_follow_link):
+                 config: ScraperConfig):
         """
         A constructor for a scraper object.
-        :param home: The starting page.
-        :param home: The domain of the scraped portal.
-        :param follow_link: A function determining whether to follow a link or
-                            not.
+        :param config: An instance of ScraperConfig subclass.
         """
-        super(SportPlArticlesScraper, self).__init__()
+        super(ArticlesScraper, self).__init__()
 
-        self.home = home
-        self.domain = domain
-        self.follow_link = follow_link
+        self.home = config.home()
+        self.domain = config.domain()
+        self.follow_link = config.should_follow_link
+        self.extract_article = config.extract_article
 
         self.state = ScraperState()
         self.state.queue.append(self.home)
@@ -119,7 +77,7 @@ class SportPlArticlesScraper:
             return
 
         soup = BeautifulSoup(html, 'html.parser')
-        article = sportpl_make_article(soup, page_url)
+        article = self.extract_article(soup, page_url)
         if article:
             self.state.articles_found += 1
 

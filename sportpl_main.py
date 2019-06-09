@@ -4,7 +4,8 @@ Debugging.
 import argparse
 import os
 
-from sportpl_scraper import SportPlArticlesScraper, sportpl_follow_link
+from configs.sportpl import SportPlScraperConfig
+from scraper import ArticlesScraper
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Scrapes sport.pl/pilka.')
@@ -12,9 +13,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     output_dir = args.o
 
-    scraper = SportPlArticlesScraper(home='http://www.sport.pl/pilka',
-                                     domain='http://www.sport.pl',
-                                     follow_link=sportpl_follow_link)
+    scraper = ArticlesScraper(SportPlScraperConfig())
     for article in scraper.run():
         print(article)
         if output_dir:
