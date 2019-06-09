@@ -75,8 +75,8 @@ class PilkaNoznaPlScraperConfig(ScraperConfig):
             Optional[Article]:
         art_contents = soup.find_all(class_='contentpaneopen')
         art_contents = list(filter(
-            lambda res: 
-              res.find_next_sibling(class_='article_separator') is not None,
+            lambda res:
+            res.find_next_sibling(class_='article_separator') is not None,
             art_contents
         ))
         if art_contents:

@@ -4,8 +4,8 @@ A configurable articles scraper.
 import http.client
 import os
 import pickle
-import urllib.error
 import requests
+import urllib.error
 import urllib.request
 from bs4 import BeautifulSoup
 from typing import List, Set, Optional, Iterable
@@ -111,9 +111,9 @@ class ArticlesScraper:
         except (urllib.error.HTTPError, urllib.error.URLError,
                 http.client.IncompleteRead, UnicodeEncodeError,
                 http.client.InvalidURL, requests.exceptions.InvalidURL,
-                requests.exceptions.ConnectionError) as e:
-            print("http read failed", e)
-            return
+                requests.exceptions.ConnectionError) as err:
+            print("http read failed", err)
+            return None
 
         soup = BeautifulSoup(html, 'html.parser')
         article = self.extract_article(soup, page_url)
@@ -137,8 +137,7 @@ class ArticlesScraper:
             self.state.queue.append(link)
             self.state.visited_or_queued.add(link)
 
-        if article:
-            return article
+        return article
 
     def run(self) -> Iterable[Article]:
         """

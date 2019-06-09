@@ -1,3 +1,9 @@
+"""
+A unified representation for article, regardless of the source. It does not
+involve any understanding of the contents yet.
+"""
+
+
 class Article:
     """
     A class representing an article scraped from a single webpage.

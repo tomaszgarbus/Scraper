@@ -4,10 +4,9 @@ Debugging.
 import argparse
 import os
 
-from configs.sportpl import SportPlScraperConfig
 from configs.pilkanoznapl import PilkaNoznaPlScraperConfig
+from configs.sportpl import SportPlScraperConfig
 from scraper import ArticlesScraper
-
 
 configs_mapping = {
     'sportpl': SportPlScraperConfig,
