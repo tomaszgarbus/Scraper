@@ -38,16 +38,9 @@ class SportPlScraperConfig(ScraperConfig):
     def extract_article(self, soup: BeautifulSoup, source_url: str) -> \
             Optional[Article]:
         art_contents = soup.find_all(id='gazeta_article_body')
-        for tag in art_contents:
-            self._sportpl_remove_scripts(tag)
-        if art_contents:
-            article_text = document_fromstring(
-                '\n'.join(list(map(str, art_contents)))).text_content()
-            article_date = (soup.find(class_='article_date') or
-                            soup.find(id='gazeta_article_date')).time['datetime']
-            return Article(title=soup.title.text,
-                           datetime=article_date,
-                           text=article_text,
-                           source_url=source_url)
-        return None
+        article_text = document_fromstring(
+            '\n'.join(list(map(str, art_contents)))).text_content()
+        article_title = soup.find(class_='contentpagetitle').text
+        article_date = soup.find(class_='createdate').text
 
+        return Article(article_title, article_date, article_text, source_url)

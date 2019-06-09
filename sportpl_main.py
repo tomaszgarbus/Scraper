@@ -5,7 +5,7 @@ import argparse
 import os
 
 from configs.sportpl import SportPlScraperConfig
-from scraper import ArticlesScraper, cache_state
+from scraper import ArticlesScraper
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Scrapes sport.pl/pilka.')
