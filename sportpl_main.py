@@ -5,15 +5,27 @@ import argparse
 import os
 
 from configs.sportpl import SportPlScraperConfig
+from configs.pilkanoznapl import PilkaNoznaPlScraperConfig
 from scraper import ArticlesScraper
 
+
+configs_mapping = {
+    'sportpl': SportPlScraperConfig,
+    'pilkanozna': PilkaNoznaPlScraperConfig
+}
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Scrapes sport.pl/pilka.')
+    parser = argparse.ArgumentParser(description='Scraper TODO description.')
+    parser.add_argument('-c', action='store', required=True, type=str,
+                        choices=configs_mapping.keys())
     parser.add_argument('-o', action='store', required=False, type=str)
     args = parser.parse_args()
     output_dir = args.o
+    config_name = args.c
 
-    scraper = ArticlesScraper(SportPlScraperConfig())
+    conf = configs_mapping[config_name]
+    scraper = ArticlesScraper(conf())
     try:
         for article in scraper.run():
             print(article)

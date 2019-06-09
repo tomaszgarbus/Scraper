@@ -5,6 +5,7 @@ import http.client
 import os
 import pickle
 import urllib.error
+import requests
 import urllib.request
 from bs4 import BeautifulSoup
 from typing import List, Set, Optional, Iterable
@@ -103,11 +104,14 @@ class ArticlesScraper:
 
         # Parses the webpage and fetches the list of links.
         try:
-            with urllib.request.urlopen(page_url) as response:
-                html = response.read()
+            # Still can't decide between the two libraries yet.
+            # with urllib.request.urlopen(page_url) as response:
+            #     html = response.read()
+            html = requests.get(page_url).text
         except (urllib.error.HTTPError, urllib.error.URLError,
-                http.client.IncompleteRead, UnicodeEncodeError):
-            print("http read failed")
+                http.client.IncompleteRead, UnicodeEncodeError,
+                http.client.InvalidURL, requests.exceptions.InvalidURL) as e:
+            print("http read failed", e)
             return
 
         soup = BeautifulSoup(html, 'html.parser')
