@@ -110,7 +110,8 @@ class ArticlesScraper:
             html = requests.get(page_url).text
         except (urllib.error.HTTPError, urllib.error.URLError,
                 http.client.IncompleteRead, UnicodeEncodeError,
-                http.client.InvalidURL, requests.exceptions.InvalidURL) as e:
+                http.client.InvalidURL, requests.exceptions.InvalidURL,
+                requests.exceptions.ConnectionError) as e:
             print("http read failed", e)
             return
 
