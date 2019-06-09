@@ -50,6 +50,21 @@ def sportpl_make_article(soup: BeautifulSoup, source_url: str) -> \
     return None
 
 
+class ScraperState:
+    """
+    State of the Scraper. This State should contain all information necessary
+    to resume an interrupted scraper.
+    """
+    def __init__(self):
+        # Queue of links to visit. Each link on the queue is an absolute URL
+        # string.
+        self.queue: List[str] = []
+        # Links that either have already been visited or are on the queue.
+        self.visited_or_queued: Set[str] = set()
+        # Number of found articles.
+        self.articles_found = 0
+
+
 class SportPlArticlesScraper:
     """
     A scraper for articles. The goal is for this scraper to be as universal as
@@ -72,12 +87,9 @@ class SportPlArticlesScraper:
         self.domain = domain
         self.follow_link = follow_link
 
-        # Creates a queue of web pages URLs to visit.
-        self.queue: List[str] = [self.home]
-        # Creates a set of visited or queued links.
-        self.visited_or_queued: Set[str] = set()
-
-        self.articles_found = 0
+        self.state = ScraperState()
+        self.state.queue.append(self.home)
+        self.state.visited_or_queued.add(self.home)
 
     def _preprocess_link(self, link: str) -> str:
         if link.startswith('\\\'') and link.endswith('\\\''):
@@ -94,8 +106,8 @@ class SportPlArticlesScraper:
         :return: An article, if there was one on the page, or None.
         """
         print("Visiting %s; queued elements %d; %d on queue; #articles %d" %
-              (page_url, len(self.visited_or_queued), len(self.queue),
-               self.articles_found))
+              (page_url, len(self.state.visited_or_queued),
+               len(self.state.queue), self.state.articles_found))
 
         # Parses the webpage and fetches the list of links.
         try:
@@ -109,36 +121,36 @@ class SportPlArticlesScraper:
         soup = BeautifulSoup(html, 'html.parser')
         article = sportpl_make_article(soup, page_url)
         if article:
-            self.articles_found += 1
+            self.state.articles_found += 1
 
         # Selects the links to follow.
         links_with_href = list(filter(lambda a: a.has_attr('href'),
                                       soup.find_all('a')))
         links_to_follow: List[str] = list(map(lambda a: a['href'],
                                               links_with_href))
-        links_to_follow = list(filter(self.follow_link, links_to_follow))
         links_to_follow = list(map(self._preprocess_link, links_to_follow))
+        links_to_follow = list(filter(self.follow_link, links_to_follow))
 
         for link in links_to_follow:
-            if link in self.visited_or_queued:
+            if link in self.state.visited_or_queued:
                 # Link has already been visited, there is a cycle in the link
                 # graph.
                 continue
             # Appends the link url to the end of the queue.
-            self.queue.append(link)
-            self.visited_or_queued.add(link)
+            self.state.queue.append(link)
+            self.state.visited_or_queued.add(link)
 
         if article:
             return article
 
     def run(self):
-        while self.queue:
+        while self.state.queue:
             # Pops random webpage from the queue.
             # Why random? To avoid falling into an endless process of visiting
             # all single-matche-pages.
-            idx = random.randint(0, len(self.queue)-1)
-            page = self.queue[idx]
-            self.queue = self.queue[:idx] + self.queue[idx+1:]
+            idx = random.randint(0, len(self.state.queue)-1)
+            page = self.state.queue[idx]
+            self.state.queue = self.state.queue[:idx] + self.state.queue[idx+1:]
 
             article = self._visit_page(page_url=page)
             if article:
