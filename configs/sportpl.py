@@ -21,8 +21,8 @@ class SportPlScraperConfig(ScraperConfig):
         return 'sport_pl_state_cache'
 
     def should_follow_link(self, link: str) -> bool:
-        return (link.startswith('http://www.sport.pl/pilka')
-                or link.startswith('/pilka')) and 'pilka/2' not in link
+        return (link.startswith('http://www.sport.pl/pilka') and
+                'pilka/2' not in link)
 
     def _sportpl_remove_scripts(self, soup: BeautifulSoup) -> None:
         """
