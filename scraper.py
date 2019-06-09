@@ -4,12 +4,14 @@ A configurable articles scraper.
 import http.client
 import urllib.error
 import urllib.request
+import pickle
 from bs4 import BeautifulSoup
-from typing import List, Set, Optional
+from typing import List, Set, Optional, Iterable
 
 from article import Article
 from configs.scraper_config import ScraperConfig
 from utils import is_link_relative
+import os
 
 
 class ScraperState:
@@ -25,6 +27,29 @@ class ScraperState:
         self.visited_or_queued: Set[str] = set()
         # Number of found articles.
         self.articles_found = 0
+
+
+def load_cached_state(fname: str) -> Optional[ScraperState]:
+    """
+    Tries to load cached ScraperState.
+    :param fname: Filename inside 'cache/' directory.
+    :return: A ScraperState instance or None.
+    """
+    state: Optional[ScraperState] = None
+    if os.path.exists(os.path.join('cache', fname)):
+        with open(os.path.join('cache', fname), 'rb') as file:
+            state = pickle.load(file)
+    return state
+
+
+def cache_state(fname: str, state: ScraperState) -> None:
+    """
+    Caches the ScraperState instance to 'cache/' directory.
+    :param fname: Filename inside 'cache/' folder.
+    :param state: A ScraperState instance to cache.
+    """
+    with open(os.path.join('cache', fname), 'wb+') as file:
+        pickle.dump(state, file)
 
 
 class ArticlesScraper:
@@ -50,6 +75,13 @@ class ArticlesScraper:
         self.state.visited_or_queued.add(self.home)
 
     def _preprocess_link(self, link: str) -> str:
+        """
+        Preprocesses the link to fix common issues and transform it into an
+        absolute URL. Note that this operation may not produce a valid URL
+        and in such case it should fail the `self.follow_link` predicate.
+        :param link: An URL, absolute or relative.
+        :return: An absolute URL.
+        """
         if link.startswith('\\\'') and link.endswith('\\\''):
             link = link[2:-2]
         if is_link_relative(link):
@@ -101,7 +133,11 @@ class ArticlesScraper:
         if article:
             return article
 
-    def run(self):
+    def run(self) -> Iterable[Article]:
+        """
+        Runs the scraper.
+        :return: Yields all found articles.
+        """
         while self.state.queue:
             page = self.state.queue[0]
             self.state.queue = self.state.queue[1:]
