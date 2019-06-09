@@ -145,12 +145,8 @@ class SportPlArticlesScraper:
 
     def run(self):
         while self.state.queue:
-            # Pops random webpage from the queue.
-            # Why random? To avoid falling into an endless process of visiting
-            # all single-matche-pages.
-            idx = random.randint(0, len(self.state.queue)-1)
-            page = self.state.queue[idx]
-            self.state.queue = self.state.queue[:idx] + self.state.queue[idx+1:]
+            page = self.state.queue[0]
+            self.state.queue = self.state.queue[1:]
 
             article = self._visit_page(page_url=page)
             if article:
