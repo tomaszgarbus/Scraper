@@ -1,3 +1,4 @@
 .idea/
 __pycache__/
 cache/*
+downloaded_data
