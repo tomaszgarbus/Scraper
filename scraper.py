@@ -69,8 +69,10 @@ class ArticlesScraper:
         self.domain = config.domain()
         self.follow_link = config.should_follow_link
         self.extract_article = config.extract_article
+        self.state_cache_fname = config.state_cache_fname()
 
-        self.state = ScraperState()
+        self.state = (load_cached_state(self.state_cache_fname) or
+                      ScraperState())
         self.state.queue.append(self.home)
         self.state.visited_or_queued.add(self.home)
 
@@ -145,3 +147,9 @@ class ArticlesScraper:
             article = self._visit_page(page_url=page)
             if article:
                 yield article
+
+    def checkpoint(self) -> None:
+        """
+        Caches the state on disk.
+        """
+        cache_state(self.state_cache_fname, self.state)
