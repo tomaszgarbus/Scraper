@@ -111,8 +111,11 @@ class PilkaNoznaPlScraperConfig(ScraperConfig):
             # Strips the whitespace once more.
             article_text = article_text.strip()
 
-            return Article(article_title, article_date, article_text,
-                           source_url)
+            return Article(title=article_title,
+                           datetime=article_date,
+                           text=article_text,
+                           source_url=source_url,
+                           raw_html=str(soup))
 
         return None
 

@@ -6,11 +6,13 @@ import os
 
 from configs.pilkanoznapl import PilkaNoznaPlScraperConfig
 from configs.sportpl import SportPlScraperConfig
+from configs.orzeczenia import OrzeczeniaScraperConfig
 from scraper import ArticlesScraper
 
 configs_mapping = {
     'sportpl': SportPlScraperConfig,
-    'pilkanozna': PilkaNoznaPlScraperConfig
+    'pilkanozna': PilkaNoznaPlScraperConfig,
+    'orzeczenia': OrzeczeniaScraperConfig,
 }
 
 
