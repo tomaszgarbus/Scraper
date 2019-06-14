@@ -21,8 +21,10 @@ if __name__ == '__main__':
     parser.add_argument('-c', action='store', required=True, type=str,
                         choices=configs_mapping.keys())
     parser.add_argument('-o', action='store', required=False, type=str)
+    parser.add_argument('-r', action='store', required=False, type=str)
     args = parser.parse_args()
     output_dir = args.o
+    raw_html_dir = args.r
     config_name = args.c
 
     conf = configs_mapping[config_name]
@@ -37,5 +39,12 @@ if __name__ == '__main__':
                 fpath = os.path.join(pathdir, fname)
                 with open(fpath, 'w+') as file:
                     file.write(str(article))
+            if raw_html_dir:
+                pathdir = os.path.join(raw_html_dir, article.datetime)
+                os.makedirs(pathdir, exist_ok=True)
+                fname = str(len(os.listdir(pathdir)))
+                fpath = os.path.join(pathdir, fname)
+                with open(fpath, 'w+') as file:
+                    file.write(article.raw_html)
     except KeyboardInterrupt:
         scraper.checkpoint()
