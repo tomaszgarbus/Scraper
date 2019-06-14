@@ -2,4 +2,6 @@ urllib3
 validators
 bs4
 lxml
+requests
 pylint
+selenium
