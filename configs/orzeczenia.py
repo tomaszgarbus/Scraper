@@ -109,9 +109,15 @@ class OrzeczeniaScraperConfig(ScraperConfig):
     # should connect to another random server.
     REFRESH_VPN = 10
 
+    # Time to sleep between GET requests in order to not get banned.
+    TIME_BETWEEN_GET = 3
+
     def __init__(self):
         super(OrzeczeniaScraperConfig, self).__init__()
+        # Initializes the PhantomJS browser and sets its timeout.
         self.browser = webdriver.PhantomJS()
+        self.browser.implicitly_wait(self.TIME_BETWEEN_GET)
+        self.browser.set_page_load_timeout(self.TIME_BETWEEN_GET)
         self.nord_vpn_helper = NordVPNHelper()
         self.fetch_page_count = 0
 
@@ -150,7 +156,7 @@ class OrzeczeniaScraperConfig(ScraperConfig):
         self.fetch_page_count += 1
         if self.fetch_page_count % self.REFRESH_VPN == 0:
             self.nord_vpn_helper.connect_to_random_city()
-        time.sleep(3)
+        time.sleep(self.TIME_BETWEEN_GET)
         self.browser.get(page_url)
         html = self.browser.page_source
         # with urllib.request.urlopen(page_url) as response:

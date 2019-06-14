@@ -8,6 +8,7 @@ import requests
 import urllib.error
 import urllib.request
 from bs4 import BeautifulSoup
+from selenium.common.exceptions import TimeoutException
 from typing import List, Set, Optional, Iterable
 
 from article import Article
@@ -110,7 +111,7 @@ class ArticlesScraper:
         except (urllib.error.HTTPError, urllib.error.URLError,
                 http.client.IncompleteRead, UnicodeEncodeError,
                 http.client.InvalidURL, requests.exceptions.InvalidURL,
-                requests.exceptions.ConnectionError) as err:
+                requests.exceptions.ConnectionError, TimeoutException) as err:
             print("http read failed", err)
             return None
 
