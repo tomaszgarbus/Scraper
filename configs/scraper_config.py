@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from typing import Optional
 
 from article import Article
+import requests
 
 
 class ScraperConfig:
@@ -48,3 +49,13 @@ class ScraperConfig:
         :return: Either an Article object or None.
         """
         raise NotImplementedError()
+
+    def fetch_page(self, page_url) -> str:
+        """
+        Function fetching the web page given its URL. For some websites it might
+        be necessary to override it (e.g. to handle polish characters correctly
+        or sleep 1 second to not get banned).
+        :param page_url: An absolute URL of the page to fetch.
+        :return: Raw HTML content of the web page.
+        """
+        return requests.get(page_url).text

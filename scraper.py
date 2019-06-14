@@ -71,6 +71,8 @@ class ArticlesScraper:
         self.follow_link = config.should_follow_link
         self.extract_article = config.extract_article
         self.state_cache_fname = config.state_cache_fname()
+        self.get_request = config.fetch_page
+        self.config = config
 
         self.state = (load_cached_state(self.state_cache_fname) or
                       ScraperState())
@@ -104,10 +106,7 @@ class ArticlesScraper:
 
         # Parses the webpage and fetches the list of links.
         try:
-            # Still can't decide between the two libraries yet.
-            # with urllib.request.urlopen(page_url) as response:
-            #     html = response.read()
-            html = requests.get(page_url).text
+            html = self.get_request(page_url)
         except (urllib.error.HTTPError, urllib.error.URLError,
                 http.client.IncompleteRead, UnicodeEncodeError,
                 http.client.InvalidURL, requests.exceptions.InvalidURL,
