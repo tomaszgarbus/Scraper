@@ -107,7 +107,7 @@ class NordVPNHelper:
 class OrzeczeniaScraperConfig(ScraperConfig):
     # This constant determines the number of calls to |fetch_page| before VPN
     # should connect to another random server.
-    REFRESH_VPN = 10
+    REFRESH_VPN = 40
 
     # Time to sleep between GET requests in order to not get banned.
     TIME_BETWEEN_GET = 3
