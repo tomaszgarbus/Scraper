@@ -39,7 +39,8 @@ class NordVPNHelper:
               'Bratislava']
 
     def __init__(self):
-        self.countries = self.list_countries()
+        # self.countries = self.list_countries()
+        pass
 
     def connect_to_random_city(self) -> None:
         """
@@ -58,8 +59,7 @@ class NordVPNHelper:
         """
         nord_output = subprocess.Popen(["nordvpn", "status"],
                                        stdout=subprocess.PIPE)
-        status = re.split("[\r \n :]",
-                          nord_output.communicate()[0].decode("utf-8"))[-2]
+        status = nord_output.communicate()[0].decode("utf-8")
         print(status)
 
     @staticmethod
@@ -153,9 +153,10 @@ class OrzeczeniaScraperConfig(ScraperConfig):
             return None
 
     def fetch_page(self, page_url) -> str:
-        self.fetch_page_count += 1
         if self.fetch_page_count % self.REFRESH_VPN == 0:
             self.nord_vpn_helper.connect_to_random_city()
+        self.fetch_page_count += 1
+
         time.sleep(self.TIME_BETWEEN_GET)
         self.browser.get(page_url)
         html = self.browser.page_source
