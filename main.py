@@ -18,10 +18,10 @@ configs_mapping = {
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Scraper TODO description.')
-    parser.add_argument('-c', action='store', required=True, type=str,
+    parser.add_argument('-c', action='store', required=True, type=str, help='name of the config',
                         choices=configs_mapping.keys())
-    parser.add_argument('-o', action='store', required=False, type=str)
-    parser.add_argument('-r', action='store', required=False, type=str)
+    parser.add_argument('-o', action='store', help='output directory', required=False, type=str)
+    parser.add_argument('-r', action='store', help='raw html output directory', required=False, type=str)
     args = parser.parse_args()
     output_dir = args.o
     raw_html_dir = args.r
