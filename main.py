@@ -46,5 +46,8 @@ if __name__ == '__main__':
                 fpath = os.path.join(pathdir, fname)
                 with open(fpath, 'w+') as file:
                     file.write(article.raw_html)
+            if (scraper.state.articles_found > 0 and
+                    scraper.state.articles_found % 100 == 0):
+                scraper.checkpoint()
     except KeyboardInterrupt:
         scraper.checkpoint()

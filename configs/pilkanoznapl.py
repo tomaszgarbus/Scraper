@@ -55,6 +55,8 @@ class PilkaNoznaPlScraperConfig(ScraperConfig):
         :param pattern: A pattern to seek and delete.
         :return: A subsequence of |article_text|, without |pattern|.
         """
+        if pattern == '':
+            return article_text
         while pattern in article_text:
             idx = article_text.find(pattern)
             article_text = (article_text[:idx] +
@@ -84,7 +86,11 @@ class PilkaNoznaPlScraperConfig(ScraperConfig):
             article_text: str = document_fromstring(
                 '\n'.join(list(map(str, art_contents)))).text_content().strip()
             article_title = soup.find(class_='contentpagetitle').text.strip()
-            article_date = soup.find(class_='createdate').text.strip()
+            article_date_node = soup.find(class_='createdate')
+            if article_date_node:
+                article_date = article_date_node.text.strip()
+            else:
+                article_date = ''
 
             # Removes empty lines from the article content.
             article_text = self._remove_empty_lines(article_text)
