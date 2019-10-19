@@ -30,6 +30,16 @@ class BBCSportScraperConfig(ScraperConfig):
         text = re.sub(media_playback, '', text)
         return text
 
+    @staticmethod
+    def _extract_date(soup: BeautifulSoup) -> str:
+        datetime = soup.find(
+            class_='component component--default story').find('time')
+        if datetime is not None and datetime.has_attr('data-timestamp'):
+            datetime = datetime['data-timestamp']
+        else:
+            datetime = ''
+        return datetime
+
     def extract_article(self, soup: BeautifulSoup, source_url: str) -> \
             Optional[Article]:
         story_body = soup.find(id='story-body')
@@ -39,12 +49,11 @@ class BBCSportScraperConfig(ScraperConfig):
                 '\n'.join(list(map(str, art_contents)))
             ).text_content()
             text = self._remove_clutter_from_text(text)
-            title = soup.find(class_='story-headline').text
-            datetime = soup.find(class_='component component--default story').find('time')
-            if datetime is not None:
-                datetime = datetime['data-timestamp']
-            else:
-                datetime = ''
+            title_node = soup.find(class_='story-headline')
+            if not title_node:
+                return None
+            title = title_node.text
+            datetime = self._extract_date(soup)
             source_url = source_url
             raw_html = str(soup)
             return Article(title, datetime, text, source_url, raw_html)

@@ -43,9 +43,11 @@ class SportPlScraperConfig(ScraperConfig):
         if art_contents:
             article_text = document_fromstring(
                 '\n'.join(list(map(str, art_contents)))).text_content()
-            article_date = \
+            article_date_node = \
                 (soup.find(class_='article_date') or
-                 soup.find(id='gazeta_article_date')).time['datetime']
+                 soup.find(id='gazeta_article_date'))
+            article_date = ('' if not article_date_node else
+                            article_date_node.time['datetime'])
             return Article(title=soup.title.text,
                            datetime=article_date,
                            text=article_text,
