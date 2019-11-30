@@ -4,6 +4,7 @@ Debugging.
 import argparse
 import os
 
+from configs.pap import PAPScraperConfig
 from configs.pilkanoznapl import PilkaNoznaPlScraperConfig
 from configs.sportpl import SportPlScraperConfig
 from configs.orzeczenia import OrzeczeniaScraperConfig
@@ -15,6 +16,7 @@ configs_mapping = {
     'pilkanozna': PilkaNoznaPlScraperConfig,
     'orzeczenia': OrzeczeniaScraperConfig,
     'bbcsport': BBCSportScraperConfig,
+    'pap': PAPScraperConfig,
 }
 
 
