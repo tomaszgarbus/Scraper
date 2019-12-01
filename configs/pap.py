@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 
 from bs4 import BeautifulSoup
@@ -29,6 +30,7 @@ class PAPScraperConfig(ScraperConfig):
         if datetime_node is None:
             return None
         datetime = datetime_node.text
+        datetime = re.sub('(\n|\s)', '', datetime)
         text_node = soup.find('article', attrs={'role': 'article'})
         if text_node is None:
             return None
