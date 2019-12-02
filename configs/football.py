@@ -64,7 +64,9 @@ class FootballCoUkScraperConfig(ScraperConfig):
         if date_node is None:
             return None
         datetime = date_node.text.strip()
-        text_node = soup.find(class_='article_content')
+        text_node = soup.find(class_='article-content')
+        if text_node is None:
+            return None
         text = text_node.text
         text = self._cleanup(text)
         raw_html = str(soup)
