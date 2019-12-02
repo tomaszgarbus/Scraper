@@ -111,7 +111,8 @@ class ArticlesScraper:
         except (urllib.error.HTTPError, urllib.error.URLError,
                 http.client.IncompleteRead, UnicodeEncodeError,
                 http.client.InvalidURL, requests.exceptions.InvalidURL,
-                requests.exceptions.ConnectionError, TimeoutException) as err:
+                requests.exceptions.ConnectionError, TimeoutException,
+                UnicodeError) as err:
             print("http read failed", err)
             return None
 

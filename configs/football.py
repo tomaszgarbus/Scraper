@@ -59,7 +59,10 @@ class FootballCoUkScraperConfig(ScraperConfig):
 
     def extract_article(self, soup: BeautifulSoup, source_url: str) -> \
             Optional[Article]:
-        title = soup.find('title').text
+        title_tag = soup.find('title')
+        if title_tag is None:
+            return None
+        title = title_tag.text
         date_node = soup.find(id='author')
         if date_node is None:
             return None
