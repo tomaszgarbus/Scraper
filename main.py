@@ -4,6 +4,7 @@ Debugging.
 import argparse
 import os
 
+from configs.faktsport import FaktSportScraperConfig
 from configs.interiasport import InteriaSportScraperConfig
 from configs.pap import PAPScraperConfig
 from configs.pilkanoznapl import PilkaNoznaPlScraperConfig
@@ -19,6 +20,7 @@ configs_mapping = {
     'bbcsport': BBCSportScraperConfig,
     'pap': PAPScraperConfig,
     'interiasport': InteriaSportScraperConfig,
+    'faktsport': FaktSportScraperConfig,
 }
 
 
