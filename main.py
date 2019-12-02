@@ -4,13 +4,13 @@ Debugging.
 import argparse
 import os
 
-from configs.faktsport import FaktSportScraperConfig
+from configs.bbcsport import BBCSportScraperConfig
+from configs.football import FootballCoUkScraperConfig
 from configs.interiasport import InteriaSportScraperConfig
+from configs.orzeczenia import OrzeczeniaScraperConfig
 from configs.pap import PAPScraperConfig
 from configs.pilkanoznapl import PilkaNoznaPlScraperConfig
 from configs.sportpl import SportPlScraperConfig
-from configs.orzeczenia import OrzeczeniaScraperConfig
-from configs.bbcsport import BBCSportScraperConfig
 from scraper import ArticlesScraper
 
 configs_mapping = {
@@ -20,7 +20,7 @@ configs_mapping = {
     'bbcsport': BBCSportScraperConfig,
     'pap': PAPScraperConfig,
     'interiasport': InteriaSportScraperConfig,
-    'faktsport': FaktSportScraperConfig,
+    'football': FootballCoUkScraperConfig,
 }
 
 
