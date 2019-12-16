@@ -68,7 +68,10 @@ class InteriaSportScraperConfig(ScraperConfig):
 
     def extract_article(self, soup: BeautifulSoup, source_url: str) -> \
             Optional[Article]:
-        title = soup.find('title').text
+        title_node = soup.find('title')
+        if title_node is None:
+            return None
+        title = title_node.text
         art_container = soup.find(class_='article-container')
         if art_container is None:
             return None

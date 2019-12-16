@@ -10,6 +10,7 @@ from configs.interiasport import InteriaSportScraperConfig
 from configs.orzeczenia import OrzeczeniaScraperConfig
 from configs.pap import PAPScraperConfig
 from configs.pilkanoznapl import PilkaNoznaPlScraperConfig
+from configs.sportonetpl import SportOnetPlScraperConfig
 from configs.sportpl import SportPlScraperConfig
 from scraper import ArticlesScraper
 
@@ -21,6 +22,7 @@ configs_mapping = {
     'pap': PAPScraperConfig,
     'interiasport': InteriaSportScraperConfig,
     'football': FootballCoUkScraperConfig,
+    'sportonetpl': SportOnetPlScraperConfig,
 }
 
 
