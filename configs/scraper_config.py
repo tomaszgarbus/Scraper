@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from typing import Optional
 
-from article import Article
+from article import BaseArticle
 import requests
 
 
@@ -40,13 +40,13 @@ class ScraperConfig:
         raise NotImplementedError()
 
     def extract_article(self, soup: BeautifulSoup, source_url: str) -> \
-            Optional[Article]:
+            Optional[BaseArticle]:
         """
         If the visited web page contains an article, extracts its content and
         builds an Article object. Otherwise returns None.
         :param soup: A BeautifulSoup representation of visited page.
         :param source_url: Absolute URL of the visited page.
-        :return: Either an Article object or None.
+        :return: Either a BaseArticle object or None.
         """
         raise NotImplementedError()
 

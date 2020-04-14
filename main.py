@@ -43,14 +43,14 @@ if __name__ == '__main__':
         for article in scraper.run():
             print(article)
             if output_dir:
-                pathdir = os.path.join(output_dir, article.datetime)
+                pathdir = os.path.join(output_dir, article.nuid)
                 os.makedirs(pathdir, exist_ok=True)
                 fname = str(len(os.listdir(pathdir)))
                 fpath = os.path.join(pathdir, fname)
                 with open(fpath, 'w+') as file:
                     file.write(str(article))
             if raw_html_dir:
-                pathdir = os.path.join(raw_html_dir, article.datetime)
+                pathdir = os.path.join(raw_html_dir, article.nuid)
                 os.makedirs(pathdir, exist_ok=True)
                 fname = str(len(os.listdir(pathdir)))
                 fpath = os.path.join(pathdir, fname)

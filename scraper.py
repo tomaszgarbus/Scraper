@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 from selenium.common.exceptions import TimeoutException
 from typing import List, Set, Optional, Iterable
 
-from article import Article
+from article import BaseArticle
 from configs.scraper_config import ScraperConfig
 from utils import is_link_relative
 
@@ -94,7 +94,7 @@ class ArticlesScraper:
             link = self.domain + link
         return link
 
-    def _visit_page(self, page_url: str) -> Optional[Article]:
+    def _visit_page(self, page_url: str) -> Optional[BaseArticle]:
         """
         Processes a single page during the DFS scraping procedure.
 
@@ -140,7 +140,7 @@ class ArticlesScraper:
 
         return article
 
-    def run(self) -> Iterable[Article]:
+    def run(self) -> Iterable[BaseArticle]:
         """
         Runs the scraper.
         :return: Yields all found articles.
