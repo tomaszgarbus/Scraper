@@ -59,3 +59,14 @@ class ScraperConfig:
         :return: Raw HTML content of the web page.
         """
         return requests.get(page_url).text
+
+    def soup_features(self) -> str:
+        """
+        BeautifulSoup features used for parsing a webpage. Usually "html.parser"
+        works just fine, but in some cases other value may result in better
+        parsing. The best way to determine the desired parser is to compare
+        several parsers on the same .html file.
+        :return: A single string.
+        """
+        return 'html.parser'
+

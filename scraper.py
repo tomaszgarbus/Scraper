@@ -7,6 +7,8 @@ import pickle
 import requests
 import urllib.error
 import urllib.request
+
+import urllib3
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import TimeoutException
 from typing import List, Set, Optional, Iterable
@@ -74,6 +76,7 @@ class ArticlesScraper:
         self.state_cache_fname = config.state_cache_fname()
         self.get_request = config.fetch_page
         self.config = config
+        self.soup_features = config.soup_features()
 
         self.state = (load_cached_state(self.state_cache_fname) or
                       ScraperState())
@@ -112,11 +115,12 @@ class ArticlesScraper:
                 http.client.IncompleteRead, UnicodeEncodeError,
                 http.client.InvalidURL, requests.exceptions.InvalidURL,
                 requests.exceptions.ConnectionError, TimeoutException,
-                UnicodeError) as err:
+                UnicodeError, ValueError,
+                urllib3.exceptions.ProtocolError) as err:
             print("http read failed", err)
             return None
 
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, self.soup_features)
         article = self.extract_article(soup, page_url)
         if article:
             self.state.articles_found += 1

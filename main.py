@@ -4,6 +4,7 @@ Debugging.
 import argparse
 import os
 
+from configs.amazon import AmazonScraperConfig
 from configs.bbcsport import BBCSportScraperConfig
 from configs.football import FootballCoUkScraperConfig
 from configs.interiasport import InteriaSportScraperConfig
@@ -23,6 +24,7 @@ configs_mapping = {
     'interiasport': InteriaSportScraperConfig,
     'football': FootballCoUkScraperConfig,
     'sportonetpl': SportOnetPlScraperConfig,
+    'amazon': AmazonScraperConfig,
 }
 
 

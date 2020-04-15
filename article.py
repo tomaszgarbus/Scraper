@@ -3,7 +3,7 @@ A unified representation for article, regardless of the source. It does not
 involve any understanding of the contents yet.
 """
 import json
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 
 class BaseArticle:
@@ -23,7 +23,7 @@ class Article(BaseArticle):
                  text: str,
                  source_url: str,
                  raw_html: str):
-        super(Article, self).__init__(name=title, id=datetime,
+        super(Article, self).__init__(name=title, nuid=datetime,
                                       raw_html=raw_html)
         self.title = title
         self.datetime = datetime
@@ -43,18 +43,20 @@ class ProductWithReviews(BaseArticle):
     """
     A class representing a product from e.g. Amazon with reviews.
     """
-    def __init__(self, product_name: str, product_params: Dict[str],
-                 reviews: List[str], raw_html: str):
+    def __init__(self, product_name: str, product_params: Dict[str, str],
+                 reviews: List[Dict], raw_html: str, product_url: str):
         super(ProductWithReviews, self).__init__(name=product_name,
-                                                 id=product_name,
+                                                 nuid=product_name,
                                                  raw_html=raw_html)
         self.product_name = product_name
         self.product_params = product_params
         self.reviews = reviews
+        self.product_url = product_url
 
     def __str__(self):
         return json.dumps({
             'product_name': self.product_name,
             'product_params': self.product_params,
+            'product_url': self.product_url,
             'reviews': self.reviews
         })
